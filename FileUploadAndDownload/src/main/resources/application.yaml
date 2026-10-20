@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: fileupload-and-download
+  config:
+    import: "optional:configserver:http://localhost:8088"
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/files_db
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: ${DB_PASSWORD:}
+    
+  jpa:
+    hibernate:
+      ddl-auto: update
+      
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+file:
+  upload-dir: uploads
+  
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+server:
+  port: 8890
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+

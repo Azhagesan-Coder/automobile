@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: inventory-management
+  config:
+    import: "optional:configserver:http://localhost:8088"
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/inventory_db
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+      
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+server:
+  port: 8084
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+

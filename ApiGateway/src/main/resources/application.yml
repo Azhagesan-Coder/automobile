@@ -1,0 +1,103 @@
+server:
+  port: 8765
+spring:
+  application:
+    name: api-gateway
+  config:
+    import: "optional:configserver:http://localhost:8088"
+  datasource:
+    url: jdbc:mysql://localhost:3306/security
+    username: root
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: update
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: customer-management
+              uri: lb://customer-management
+              predicates:
+                - Path=/api/customers/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: customer-management
+                    fallbackUri: forward:/internal/downstream-unavailable
+                    statusCodes: "500,502,503,504"
+            - id: inventory-management
+              uri: lb://inventory-management
+              predicates:
+                - Path=/api/invent/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: inventory-management
+                    fallbackUri: forward:/internal/downstream-unavailable
+                    statusCodes: "500,502,503,504"
+            - id: service-management
+              uri: lb://service-management
+              predicates:
+                - Path=/api/service/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: service-management
+                    fallbackUri: forward:/internal/downstream-unavailable
+                    statusCodes: "500,502,503,504"
+            - id: sales-management
+              uri: lb://sales-management
+              predicates:
+                - Path=/api/sales/**,/api/sms/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: sales-management
+                    fallbackUri: forward:/internal/downstream-unavailable
+                    statusCodes: "500,502,503,504"
+            - id: report-management
+              uri: lb://report-management
+              predicates:
+                - Path=/api/report/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: report-management
+                    fallbackUri: forward:/internal/downstream-unavailable
+                    statusCodes: "500,502,503,504"
+            - id: fileupload-and-download
+              uri: lb://fileupload-and-download
+              predicates:
+                - Path=/api/files/**
+              filters:
+                - name: CircuitBreaker
+                  args:
+                    id: fileupload-and-download
+                    fallbackUri: forward:/internal/downstream-unavailable
+                    statusCodes: "500,502,503,504"
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+jwt:
+  # Required: a securely generated secret with at least 32 UTF-8 bytes.
+  secret: ${JWT_SECRET:}
+
+
+# HTTP transport deadlines bound calls without retrying writes.
+spring.http.client.connect-timeout: 5s
+spring.http.client.read-timeout: 15s
+spring.cloud.circuitbreaker.resilience4j.disable-time-limiter: true
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 20
+        minimumNumberOfCalls: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 30s
+        permittedNumberOfCallsInHalfOpenState: 3
