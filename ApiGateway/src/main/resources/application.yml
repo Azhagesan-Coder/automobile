@@ -12,6 +12,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect			
   cloud:
     gateway:
       server:
@@ -86,6 +90,14 @@ eureka:
 jwt:
   # Required: a securely generated secret with at least 32 UTF-8 bytes.
   secret: ${JWT_SECRET:}
+
+management:
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
 
 
 # HTTP transport deadlines bound calls without retrying writes.

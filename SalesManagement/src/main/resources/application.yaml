@@ -27,9 +27,12 @@ twilio:
     number: ${TWILIO_PHONE_NUMBER:}
     
 management:
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_ENDPOINT:http://localhost:9411/api/v2/spans}
   tracing:
     sampling:
-      probability: 1.0
+      probability: ${TRACING_SAMPLING_PROBABILITY:1.0}
 server:
   port: 8082
 

@@ -32,6 +32,10 @@ Save this generated value securely and reuse it on subsequent starts and across 
 
 Start Config-Server (8088), ServiceRegistry (8761), then business services and ApiGateway (8765). Run a module with its `mvnw.cmd spring-boot:run`. Business services also have local port and Eureka defaults, so an unavailable optional Config Server does not make them all fall back to port 8080. Services advertise their IP address to avoid discovery failures caused by an unresolvable machine hostname.
 
+### Distributed tracing with Zipkin
+
+Start the local Zipkin UI and collector with `docker compose -f docker-compose.zipkin.yml up -d`, then open http://localhost:9411. All HTTP business services and the API gateway export Micrometer Brave traces to `http://localhost:9411/api/v2/spans` and propagate trace context on instrumented HTTP calls. Restart applications after changing tracing settings. Configure `ZIPKIN_ENDPOINT` when Zipkin is hosted elsewhere. Sampling defaults to 100% for local development; set `TRACING_SAMPLING_PROBABILITY` between `0.0` and `1.0` to adjust it, and use a lower value in production. If the apps run in containers, set `ZIPKIN_ENDPOINT` to the Zipkin service hostname reachable from those containers rather than `localhost`.
+
 ### Calling services through the gateway
 
 Eureka on port 8761 is the service registry; API requests go to the gateway on port 8765. The gateway proxies requests internally, so a successful response does not redirect the browser to a service port. Keep the complete backend path, for example `http://localhost:8765/api/invent/1` or `http://localhost:8765/api/customers/1`.
